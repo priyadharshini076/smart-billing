@@ -1,0 +1,12 @@
+{
+  "P001": {
+    "name": "John Doe",
+    "bill_total": 3500,
+    "due_date": "2025-08-30",
+    "breakdown": {
+      "MRI": 2000,
+      "Consultation": 1000,
+      "Lab Tests": 500
+    }
+  }
+}
