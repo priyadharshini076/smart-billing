@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartBillCare - Healthcare Integration Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 280px 1fr 350px;
+            grid-template-rows: 70px 1fr;
+            height: 100vh;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .header {
+            grid-column: 1 / -1;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #4CAF50, #2196F3);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .hospital-name {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .notifications {
+            position: relative;
+            background: #ff4757;
+            color: white;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 18px;
+            margin: 8px 0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #5a6c7d;
+            font-weight: 500;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: linear-gradient(135deg, #4CAF50, #2196F3);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .main-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1), transparent);
+            pointer-events: none;
+        }
+
+        .metric-value {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .chart-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .chart-placeholder {
+            height: 200px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .chatbot-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .chatbot-header {
+            background: linear-gradient(135deg, #4CAF50, #2196F3);
+            color: white;
+            padding: 20px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chatbot-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .chatbot-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            background: #4CAF50;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-bubble {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message.bot .message-bubble {
+            background: #f0f2f5;
+            color: #333;
+        }
+
+        .message.user .message-bubble {
+            background: linear-gradient(135deg, #4CAF50, #2196F3);
+            color: white;
+        }
+
+        .avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 12px;
+        }
+
+        .bot-avatar {
+            background: linear-gradient(135deg, #4CAF50, #2196F3);
+        }
+
+        .user-avatar {
+            background: linear-gradient(135deg, #ff7b7b, #667eea);
+        }
+
+        .chat-input {
+            padding: 20px;
+            border-top: 1px solid #e1e5e9;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #e1e5e9;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .chat-input button {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #4CAF50, #2196F3);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .active-calls {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .call-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f2f5;
+        }
+
+        .call-info {
+            font-size: 14px;
+            color: #5a6c7d;
+        }
+
+        .call-duration {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .integration-status {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .integration-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        .integration-name {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .floating-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #4CAF50, #2196F3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .floating-button:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo-section">
+                <div class="logo">SBC</div>
+                <div class="hospital-name">MetroHealth System</div>
+            </div>
+            <div class="user-info">
+                <div class="notifications">3</div>
+                <div style="color: #2c3e50; font-weight: 500;">Dr. Sarah Johnson</div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="nav-item active">
+                <span>📊</span>
+                <span>Dashboard</span>
+            </div>
+            <div class="nav-item">
+                <span>💬</span>
+                <span>Chat Analytics</span>
+            </div>
+            <div class="nav-item">
+                <span>💳</span>
+                <span>Billing Portal</span>
+            </div>
+            <div class="nav-item">
+                <span>👥</span>
+                <span>Patient Queue</span>
+            </div>
+            <div class="nav-item">
+                <span>⚙️</span>
+                <span>Integrations</span>
+            </div>
+            <div class="nav-item">
+                <span>📈</span>
+                <span>Reports</span>
+            </div>
+            <div class="nav-item">
+                <span>🔧</span>
+                <span>Settings</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <h1 style="color: #2c3e50; margin-bottom: 25px; font-size: 28px;">SmartBillCare Dashboard</h1>
+            
+            <!-- Key Metrics -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">847</div>
+                    <div class="metric-label">Queries Resolved Today</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">23s</div>
+                    <div class="metric-label">Avg Response Time</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">94%</div>
+                    <div class="metric-label">Patient Satisfaction</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">67%</div>
+                    <div class="metric-label">Call Reduction</div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="chart-section">
+                <div class="chart-title">Daily Call Volume vs AI Resolution</div>
+                <div class="chart-placeholder">Interactive Chart: Call Volume Trends & AI Performance</div>
+            </div>
+
+            <!-- Active Calls -->
+            <div class="active-calls">
+                <h3 style="color: #2c3e50; margin-bottom: 15px;">Live Call Center Status</h3>
+                <div class="call-item">
+                    <div class="call-info">Queue: Billing Inquiries</div>
+                    <div class="call-duration">12 waiting • 3m avg wait</div>
+                </div>
+                <div class="call-item">
+                    <div class="call-info">Queue: Payment Plans</div>
+                    <div class="call-duration">7 waiting • 1m avg wait</div>
+                </div>
+                <div class="call-item">
+                    <div class="call-info">Queue: Insurance Issues</div>
+                    <div class="call-duration">15 waiting • 5m avg wait</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chatbot Panel -->
+        <div class="chatbot-panel">
+            <div class="chatbot-header">
+                <div class="chatbot-title">SmartBillCare AI</div>
+                <div class="chatbot-status">
+                    <div class="status-dot"></div>
+                    <span>Online</span>
+                </div>
+            </div>
+            
+            <div class="chat-messages">
+                <div class="message bot">
+                    <div class="avatar bot-avatar">AI</div>
+                    <div class="message-bubble">Hello! I'm SmartBillCare, your AI billing assistant. I can help patients with billing questions, payment plans, and account access. How can I assist you today?</div>
+                </div>
+                
+                <div class="message user">
+                    <div class="avatar user-avatar">PT</div>
+                    <div class="message-bubble">I received a bill for $2,847 but I'm not sure what it's for. My insurance should have covered most of it.</div>
+                </div>
+                
+                <div class="message bot">
+                    <div class="avatar bot-avatar">AI</div>
+                    <div class="message-bubble">I can help explain your bill. Let me pull up your account. I see this is for your recent procedure on March 15th. The charges include: Hospital stay ($1,200), Surgical fees ($800), Anesthesia ($547), Lab tests ($300). Your insurance covered 80%, leaving your responsibility at $569.40. The remaining amount appears to be a billing error. Let me transfer you to billing for correction.</div>
+                </div>
+                
+                <div class="message user">
+                    <div class="avatar user-avatar">PT</div>
+                    <div class="message-bubble">Thank you! That's much clearer. Can you set up a payment plan for the correct amount?</div>
+                </div>
+                
+                <div class="message bot">
+                    <div class="avatar bot-avatar">AI</div>
+                    <div class="message-bubble">Absolutely! I can set up a payment plan for $569.40. Based on your account, you qualify for a 12-month plan with $47.45/month or a 6-month plan with $94.90/month. Which would work better for you?</div>
+                </div>
+            </div>
+            
+            <div class="chat-input">
+                <input type="text" placeholder="Type a message to test the chatbot..." id="chatInput">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Integration Status Panel (Floating) -->
+    <div class="integration-status" style="position: fixed; top: 100px; right: 30px; width: 250px; z-index: 1000;">
+        <h4 style="color: #2c3e50; margin-bottom: 15px;">System Integrations</h4>
+        <div class="integration-item">
+            <span class="integration-name">Epic EHR</span>
+            <span class="status-badge status-connected">Connected</span>
+        </div>
+        <div class="integration-item">
+            <span class="integration-name">Cerner</span>
+            <span class="status-badge status-connected">Connected</span>
+        </div>
+        <div class="integration-item">
+            <span class="integration-name">Payment Gateway</span>
+            <span class="status-badge status-warning">Sync Issue</span>
+        </div>
+        <div class="integration-item">
+            <span class="integration-name">WhatsApp API</span>
+            <span class="status-badge status-connected">Connected</span>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <div class="floating-button" onclick="toggleChatbot()">💬</div>
+
+    <script>
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const messagesContainer = document.querySelector('.chat-messages');
+            
+            if (input.value.trim()) {
+                // Add user message
+                const userMessage = document.createElement('div');
+                userMessage.className = 'message user';
+                userMessage.innerHTML = `
+                    <div class="avatar user-avatar">U</div>
+                    <div class="message-bubble">${input.value}</div>
+                `;
+                messagesContainer.appendChild(userMessage);
+                
+                // Simulate AI response
+                setTimeout(() => {
+                    const botMessage = document.createElement('div');
+                    botMessage.className = 'message bot';
+                    botMessage.innerHTML = `
+                        <div class="avatar bot-avatar">AI</div>
+                        <div class="message-bubble">I understand your concern. Let me check your account details and provide you with a personalized billing explanation. This will take just a moment...</div>
+                    `;
+                    messagesContainer.appendChild(botMessage);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }, 1000);
+                
+                input.value = '';
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        }
+
+        function toggleChatbot() {
+            const chatbot = document.querySelector('.chatbot-panel');
+            chatbot.style.display = chatbot.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        // Update metrics in real-time
+        setInterval(() => {
+            const metrics = document.querySelectorAll('.metric-value');
+            metrics[0].textContent = Math.floor(Math.random() * 50) + 800; // Queries resolved
+            metrics[1].textContent = Math.floor(Math.random() * 10) + 20 + 's'; // Response time
+        }, 5000);
+
+        // Allow Enter key to send messages
+        document.getElementById('chatInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
